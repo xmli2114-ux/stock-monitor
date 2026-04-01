@@ -144,7 +144,7 @@ def format_alert(stock):
     }
     emoji = status_emoji.get(s["status"], "馃搳")
     
-    msg = f"""{emoji} **{s['name']}锛坽s['code']}锛?* 鐩戞帶鎶ュ憡
+    msg = f"""鑲＄エ {emoji} **{s['name']}锛坽s['code']}锛?* 鐩戞帶鎶ュ憡
 
 馃搷 褰撳墠浠? **{s['current']:.2f}** 鍏?馃搱 浠婃棩娑ㄨ穼: {s['pct_chg']:+.2f}%
 
