@@ -1,5 +1,4 @@
 import requests
-import json
 import os
 
 DINGTALK_WEBHOOK = os.environ.get("DINGTALK_WEBHOOK", "")
@@ -7,43 +6,43 @@ DINGTALK_WEBHOOK = os.environ.get("DINGTALK_WEBHOOK", "")
 def send_text(message):
     """鍙戦€佹枃鏈秷鎭埌閽夐拤"""
     if not DINGTALK_WEBHOOK:
-        print("鈿狅笍 鏈厤缃?DINGTALK_WEBHOOK锛岃烦杩囧彂閫?)
+        print("DINGTALK_WEBHOOK not set, skipping")
         print(message)
         return False
-    
+
     url = DINGTALK_WEBHOOK
     payload = {
         "msgtype": "markdown",
         "markdown": {
-            "title": "A鑲＄洃鎺ф彁閱?,
+            "title": "鑲＄エ鐩戞帶鎻愰啋",
             "text": message
         }
     }
-    
+
     try:
         resp = requests.post(url, json=payload, timeout=10)
         result = resp.json()
         if result.get("errcode") == 0:
-            print(f"鉁?閽夐拤娑堟伅鍙戦€佹垚鍔?)
+            print("DingTalk OK")
             return True
         else:
-            print(f"鉂?閽夐拤鍙戦€佸け璐? {result}")
+            print(f"DingTalk failed: {result}")
             return False
     except Exception as e:
-        print(f"鉂?閽夐拤璇锋眰寮傚父: {e}")
+        print(f"DingTalk error: {e}")
         return False
 
 def send_buy_alert(stock, additional_msg=""):
-    """鍙戦€佷拱鍏ユ彁閱?""
-    status_emoji = {
-        "buy": "馃幆",
-        "above": "鈴?,
-        "below": "馃憖",
-        "stop": "馃毃",
-    }
-    emoji = status_emoji.get(stock["status"], "馃搳")
-    
-    msg = f"""{emoji} **{stock['name']}锛坽stock['code']}锛?* 鐩戞帶鎻愰啋
+    """鍙戦€佷拱鍏?姝㈡崯鎻愰啋"""
+    emoji = "馃幆"
+    if stock["status"] == "stop":
+        emoji = "馃毃"
+    elif stock["status"] == "buy":
+        emoji = "馃幆"
+    else:
+        emoji = "鈴?
+
+    msg = f"""鑲＄エ {emoji} **{stock['name']}锛坽stock['code']}锛?*
 
 馃搷 褰撳墠浠? **{stock['current']:.2f}** 鍏冿紙浠婃棩 {stock['pct_chg']:+.2f}%锛?
 馃幆 涔板叆鍖洪棿: {stock['target_low']} - {stock['target_high']} 鍏?馃洃 姝㈡崯浠? {stock['stop_loss']} 鍏?
@@ -51,6 +50,6 @@ def send_buy_alert(stock, additional_msg=""):
 馃搳 閲忔瘮: {stock['vol_ratio']:.2f}x | 10鏃ヤ綆={stock['low10']:.2f} 楂?{stock['high10']:.2f}
 
 {stock['signal']}
-{additional_msg}
-"""
+{additional_msg}"""
+
     return send_text(msg)
