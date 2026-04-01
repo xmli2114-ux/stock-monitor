@@ -1,0 +1,41 @@
+name: A鑲＄洴鐩樼洃鎺?
+on:
+  schedule:
+    # 宸ヤ綔鏃?09:30, 10:00, 10:30, 11:00, 13:00, 13:30, 14:00
+    # 鍖椾含鏃堕棿 = UTC+8锛屾墍浠ヨ鍑?灏忔椂
+    - cron: '30 1,2,3,4,6,6,7 * * 1-5'
+  workflow_dispatch:  # 鏀寔鎵嬪姩瑙﹀彂
+    inputs:
+      mode:
+        description: '杩愯妯″紡'
+        required: false
+        default: 'normal'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: 妫€鍑轰唬鐮?        uses: actions/checkout@v4
+      
+      - name: 璁剧疆 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 瀹夎渚濊禆
+        run: pip install -r requirements.txt akshare requests pandas
+      
+      - name: 杩愯鐩戞帶
+        env:
+          DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+        run: |
+          echo "=== 寮€濮嬬洴鐩樻鏌?$(date) ==="
+          python monitor.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "鉁?妫€娴嬪埌涔板叆/姝㈡崯淇″彿锛屽凡鍙戦€侀拤閽夋彁閱?
+          else
+            echo "馃挙 鏃犻噸瑕佷俊鍙凤紝瀹夐潤閫€鍑?
+          fi
